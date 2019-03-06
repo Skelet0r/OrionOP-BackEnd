@@ -83,6 +83,8 @@ server.listen
 	}
 );*/
 
+
+/*
 const express = require('express');
 const colors = require('colors');
 
@@ -105,3 +107,119 @@ server.listen
 		console.log('Server on port 3000'.green);
 	}
 );
+*/
+
+
+/* Consuming an API.
+const https = require('https');
+
+https.get
+(
+	'https://la1.api.riotgames.com/lol/summoner/v4/summoners/by-name/Skelet0r?api_key=RGAPI-2c8bf7b2-2005-4c1d-a394-cfd9cf83d2a6', 
+	(res) =>
+	{
+  		//console.log('statusCode:', res.statusCode);
+  		//console.log('headers:', res.headers);
+
+		//console.log(res.data);
+		
+  		res.on
+		(
+			'data',
+			(d) => 
+			{
+    			process.stdout.write(d);
+  			}
+		);
+
+	}
+)
+.on
+(
+	'error', 
+	(e) =>
+	{
+  		console.error(e);
+	}
+);
+*/
+
+/*
+const express = require('express');
+const colors = require('colors');
+const https = require('https');
+
+const server = express();
+
+server.get
+(
+	'/',
+	function(req, res)
+	{
+		res.send('<h1>Hola mundo xd</h1>');
+		
+		https.get
+		(
+			'https://la1.api.riotgames.com/lol/summoner/v4/summoners/by-name/Skelet0r?api_key=RGAPI-2c8bf7b2-2005-4c1d-a394-cfd9cf83d2a6', 
+			(res) =>
+			{
+  				//console.log('statusCode:', res.statusCode);
+  				//console.log('headers:', res.headers);
+
+				//console.log(res.data);
+		
+  				res.on
+				(
+					'data',
+					(d) => 
+					{
+    					process.stdout.write(d);
+  					}
+				);
+			}
+		)
+		.on
+		(
+			'error', 
+			(e) =>
+			{
+  				console.error(e);
+			}
+		);
+	}
+);
+
+server.listen
+(
+	3000,
+	function()
+	{
+		console.log('Server on port 3000'.green);
+	}
+);*/
+
+const express = require('express');
+const colors = require('colors');
+const summoner = require('./getSummoner.js');
+
+const server = express();
+
+server.get
+(
+	'/api/v1/summoner',
+	function(req, res)
+	{
+		res.send('<h1>Hola mundo xd</h1>');
+		summoner.getSummonerData('la1', 'Adele Bebe', 'RGAPI-2c8bf7b2-2005-4c1d-a394-cfd9cf83d2a6');
+	}
+);
+
+server.listen
+(
+	3000,
+	function()
+	{
+		console.log('Server on port 3000'.green);
+	}
+);
+
