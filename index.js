@@ -55,21 +55,53 @@ fs.readFile
 );
 */
 
+/* Creating server and display information and log.
 const http = require('http');
+const colors = require('colors');
 
-http.createServer
+const handlerServer = function(req, resp)
+{
+	resp.writeHead
+	(
+		200,
+		{
+			'Content-type': 'text/plain'
+		}
+	);
+	resp.write('Simple text');
+	resp.end();
+};
+
+const server = http.createServer(handlerServer);
+
+server.listen
 (
-	function(req, resp)
+	3000, 
+	function()
 	{
-		resp.writeHead
-		(
-			400,
-			{
-				'Content-type': 'text/plain'
-			}
-		);
-		resp.write('Simple text');
-		resp.end();
+		console.log('Server on port 3000'.green);
 	}
-)
-.listen(3000);
+);*/
+
+const express = require('express');
+const colors = require('colors');
+
+const server = express();
+
+server.get
+(
+	'/',
+	function(req, res)
+	{
+		res.send('<h1>Hola mundo xd</h1>');
+	}
+);
+
+server.listen
+(
+	3000,
+	function()
+	{
+		console.log('Server on port 3000'.green);
+	}
+);
