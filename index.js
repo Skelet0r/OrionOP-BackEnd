@@ -9,8 +9,9 @@ server.get
 	'/api/v1/summoner',
 	function(req, res)
 	{
-		res.send('<h1>Hola mundo xd</h1>');
-		summoner.getSummonerData('la1', 'Adele Bebe', 'RGAPI-2c8bf7b2-2005-4c1d-a394-cfd9cf83d2a6');
+		const jsonApi = summoner.getSummonerData('la1', 'Skelet0r', 'RGAPI-2c8bf7b2-2005-4c1d-a394-cfd9cf83d2a6');
+		
+		console.log(jsonApi);
 	}
 );
 
@@ -22,4 +23,3 @@ server.listen
 		console.log('Server on port 3000'.green);
 	}
 );
-

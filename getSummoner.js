@@ -4,6 +4,8 @@ const https = require('https');
 
 function getSummonerData(region, summonerName, apiKey)
 {	
+	var jsonObject;
+	
 	https.get
 	(
 		'https://' + region + '.api.riotgames.com/lol/summoner/v4/summoners/by-name/'+ summonerName + '?api_key=' + apiKey, 
@@ -15,8 +17,8 @@ function getSummonerData(region, summonerName, apiKey)
 				(d) => 
 				{
     				//process.stdout.write(d);
-					var jsonObject = JSON.parse(d);
-					console.log(jsonObject);
+					jsonObject = JSON.parse(d);
+					//console.log(jsonObject);
   				}
 			);
 		}
@@ -29,6 +31,7 @@ function getSummonerData(region, summonerName, apiKey)
   			console.error(e);
 		}
 	);
+	return jsonObject;
 }
 
 Summoner.getSummonerData = getSummonerData;
