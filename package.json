@@ -4,12 +4,16 @@
   "description": "NodeJS backend for Orion OP, is the first Riot Games API project developed by Unosquare in collaboration with Dark Army Studios.",
   "main": "index.js",
   "dependencies": {
-    "colors": "^1.3.3",
+    "body-parser": "^1.18.3",
+    "ejs": "^2.6.1",
     "express": "^4.16.4"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  },
   "scripts": {
-    "start": "node index.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "repository": {
     "type": "git",

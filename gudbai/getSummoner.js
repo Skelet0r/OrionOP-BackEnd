@@ -32,6 +32,14 @@ function getSummonerData(region, summonerName, apiKey)
 		}
 	);
 	return jsonObject;
+	if(jsonObject != null)
+	{
+	   return jsonObject;
+	}
+	else
+	{
+		return 'Nothing bro :(';
+	}
 }
 
 Summoner.getSummonerData = getSummonerData;
