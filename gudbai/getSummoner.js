@@ -18,15 +18,16 @@ function getSummonerData(region, summonerName, apiKey)
 				{
     				//process.stdout.write(d);
 					jsonObject = JSON.parse(d);
-					console.log(jsonObject);
+					
 					//return jsonObject;
   				}
-			);
-			
-			res.on('end', () =>
+			);/*
+			res.on("close", function()
 			{
+        		console.log('termino xd');
+				//console.log(jsonObject);
 				return jsonObject;
-			});
+    		});*/
 		}
 	)
 	.on
@@ -36,7 +37,12 @@ function getSummonerData(region, summonerName, apiKey)
 		{
   			console.error(e);
 		}
-	);
+	).on("close", function()
+			{
+        		console.log('termino xd');
+				console.log(jsonObject);
+				return jsonObject;
+    		});
 }
 
 Summoner.getSummonerData = getSummonerData;
