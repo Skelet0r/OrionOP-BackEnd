@@ -1,10 +1,8 @@
-/*const express = require('express');
-const colors = require('colors');
+const express = require('express');
 const summoner = require('./getSummoner.js');
 
-const server = express();*/
+const server = express();
 
-/*
 server.get
 (
 	'/api/v1/summoner',
@@ -21,19 +19,6 @@ server.listen
 	3000,
 	function()
 	{
-		console.log('Server on port 3000'.green);
+		console.log('Server on port 3000');
 	}
 );
-*/
-const express = require('express');
-const https = require('https')
-const app = express()
-const fs = require('fs')
-
-app.get('/', (req, res) => {
-  res.send('Hello HTTPS!')
-})
-
-https.createServer({}, app).listen(3000, () => {
-  console.log('Listening...')
-})

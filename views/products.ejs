@@ -1,0 +1,11 @@
+<% include partials/header.ejs %>
+
+
+	<h3>List of Products</h3>
+	<ul>
+		<% for(var i = 0; i < items.length; i++) { %>
+			<li><%= items[i].name %></li>
+		<% }%>
+	</ul>
+
+<% include partials/footer.ejs %>
