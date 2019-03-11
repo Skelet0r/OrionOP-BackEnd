@@ -17,6 +17,16 @@ var port = process.env.PORT || 3000;        // set our port
 var router = express.Router();              // get an instance of the express Router
 
 // test route to make sure everything is working (accessed at GET http://localhost:8080/api)
+router.get('/', function(req, res)
+{
+	res.json
+	(
+		{
+			message: 'Welcome :)'
+		}
+	);
+});
+
 router.get('/message', function(req, res)
 {
 	res.json
@@ -92,7 +102,13 @@ router.get('/matches/:summoner', function(req, res)
 	res.json
 	(
 		{
-			summoner: req.params
+			icon: 'someUrl.jpg',
+			spell1: 'someUrl.jpg',
+			spell2: 'someUrl.jpg',
+			gameType: 'Ranked game',
+			timeAgo: '14 hours ago',
+			kda1: '21/1/3',
+			kda2: '27.00:1 KDA'
 		}
 	);
 });
@@ -119,9 +135,29 @@ router.get('/duos/:summoner', function(req, res)
 	//TO RESPONSE
 	res.json
 	(
-		{
-			summoner: req.params
-		}
+		[
+			{
+				summoner: 'the komander xD',
+				icon: 'someUrl.jpg',
+				wins: 10,
+				losses: 6,
+				winRate: '60%'
+			},
+			{
+				summoner: 'Darkay03',
+				icon: 'someUrl.jpg',
+				wins: 10,
+				losses: 6,
+				winRate: '60%'
+			},
+			{
+				summoner: 'Lord Darkblazer',
+				icon: 'someUrl.jpg',
+				wins: 10,
+				losses: 6,
+				winRate: '60%'
+			}
+		]
 	);
 });
 
@@ -134,7 +170,9 @@ router.get('/rotations/', function(req, res)
 	res.json
 	(
 		{
-			summoner: req.params
+			champion: 'Ashe',
+			icon: 'someUrl.jpg',
+			position: 'ADC, Support'
 		}
 	);
 });

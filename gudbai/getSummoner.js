@@ -6,6 +6,8 @@ function getSummonerData(region, summonerName, apiKey)
 {	
 	var jsonObject;
 	
+	apiKey = 'RGAPI-0af1caff-443d-4528-894a-7d99048d42dc';
+	
 	https.get
 	(
 		'https://' + region + '.api.riotgames.com/lol/summoner/v4/summoners/by-name/'+ summonerName + '?api_key=' + apiKey, 
