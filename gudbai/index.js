@@ -42,27 +42,86 @@ router.get('/message', function(req, res)
 // WE START HERE! :D
 router.get('/summonerName/:summoner', function(req, res)
 {
+	// LET CHECK
+	var summoner = req.params.summoner;
+	
+	while(summoner.charAt(0) === '0')
+	{
+ 		summoner = summoner.substr(1);
+	}
+	console.log(summoner);
+	
 	// TO DO
 	/* Something */
+	var json_response;
+	
+	var apiKey = 'RGAPI-0af1caff-443d-4528-894a-7d99048d42dc';
+	https.get
+	(
+		'https://la1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summoner +'?api_key=' + apiKey, 
+		(res) =>
+		{	
+  			res.on
+			(
+				'data',
+				(d) => 
+				{
+    				//process.stdout.write(d);
+					json_response = JSON.parse(d);
+					//console.log(json_response.name);
+					//return jsonObject;
+					
+					
+  				}
+			);/*
+			res.on("close", function()
+			{
+        		console.log('termino xd');
+				//console.log(jsonObject);
+				return jsonObject;
+    		});*/
+		}
+	)
+	.on
+	(
+		'error', 
+		(e) =>
+		{
+  			console.error(e);
+		}
+	)
+	.on
+	(
+		"close",
+		function()
+		{
+    		console.log('termino xd');
+			//console.log(json_response.summonerLevel);
+			//console.log(jsonObject);
+			//return jsonObject;
+			res.json
+			(
+				{
+					//summoner: req.params
+					summoner: json_response.name,
+					profileIcon: json_response.profileIconId,
+					summonerLevel: json_response.summonerLevel,
+					accountID: json_response.accountId,
+					summonerID: json_response.id
+				}
+			);
+    	}
+	);
 	
 	//TO RESPONSE
-	res.json
-	(
-		{
-			//summoner: req.params
-			summoner: 'Skelet0r',
-			profileIcon: 3005,
-			summonerLevel: 184,
-			accountID: 'Ou29VqJRC1WxaCcGX35hsPD_wnSh3erN1TpfVlCpTVPQQCE',
-			summonerID: '9bI91QCHTO_ZLWUdK0BYf0YqDU0nFlO5w1YmtzT897ydhA'
-		}
-	);
+	
+	
 });
 
 router.get('/elo/:summoner', function(req, res)
 {
 	// TO DO
-	/* Something */
+	/* Something */	
 	
 	//TO RESPONSE
 	res.json
@@ -165,6 +224,7 @@ router.get('/rotations/', function(req, res)
 {
 	// TO DO
 	/* Something */
+	
 	
 	//TO RESPONSE
 	res.json
