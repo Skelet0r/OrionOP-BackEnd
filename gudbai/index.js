@@ -2,12 +2,14 @@
 var express    = require('express');        // call express
 var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
+var cors = require('cors')
 const https = require('https');
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors());
 
 var port = process.env.PORT || 3000;        // set our port
 
@@ -40,15 +42,14 @@ router.get('/message', function(req, res)
 
 // ================================================================//
 // WE START HERE! :D
-router.get('/summonerName/:summoner', function(req, res)
+router.get('/summonerName/:region/:regionName/:summoner', function(req, res)
 {
-	// LET CHECK
+	
 	var summoner = req.params.summoner;
+	var region = req.params.region;
+	var regionName = req.params.regionName;
+	//console.log('Summoner: ' + summoner + ', region: ' + region);
 	
-	//console.log(summoner);
-	
-	// TO DO
-	/* Something */
 	var json_response;
 	
 	//var apiKey = 'RGAPI-0af1caff-443d-4528-894a-7d99048d42dc';
@@ -56,6 +57,116 @@ router.get('/summonerName/:summoner', function(req, res)
 	
 	var response_status;
 	
+	var url = 'https://' + region + '.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summoner +'?api_key=' + apiKey;
+	//console.log(url);
+	
+	https.get
+	(
+		url, 
+		(res) =>
+		{	
+  			res.on
+			(
+				'data',
+				(d) => 
+				{
+					json_response = JSON.parse(d);
+  				}
+			);
+			
+			response_status = res.statusCode;
+		}
+	)
+	.on
+	(
+		'error', 
+		(e) =>
+		{
+			res.json
+			(
+				{
+					message: 'An error has occurred, code:' + e
+				}
+			);
+		}
+	)
+	.on
+	(
+		"close",
+		function()
+		{
+			if(response_status == 200)
+			{
+				res.json
+				(
+					{
+						status: response_status,
+						region: region,
+						regionName: regionName,
+						summoner: json_response.name,
+						profileIcon: 'http://localhost:3000/public/icons/' + json_response.profileIconId + '.png',
+						summonerLevel: json_response.summonerLevel,
+						accountID: json_response.accountId,
+						summonerID: json_response.id
+					}
+				);
+			}
+			
+			else if(response_status == 403)
+			{
+				res.json
+				(
+					{
+						status: response_status,
+						message: 'The API key has expired!'
+					}
+				);
+			}
+			
+			else if(response_status == 404)
+			{
+				res.json
+				(
+					{
+						status: response_status,
+						message: 'We couldnt find a summoner.'
+					}
+				);
+			}
+			
+			else if(response_status == 500)
+			{
+				res.json
+				(
+					{
+						status: response_status,
+						message: 'Problems with Riot Services.'
+					}
+				);
+			}
+			
+			else
+			{
+				res.json
+				(
+					{
+						status: response_status,
+						message: 'An error has occurred, code:' + response_status
+					}
+				);
+			}
+    	}
+	);	
+});
+
+router.get('/elo/:summoner', function(req, res)
+{
+	// TO DO
+	/* Something */
+	var summoner = req.params.summoner;
+	//console.log(summoner);
+	
+	/*
 	https.get
 	(
 		'https://la1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summoner +'?api_key=' + apiKey, 
@@ -66,23 +177,11 @@ router.get('/summonerName/:summoner', function(req, res)
 				'data',
 				(d) => 
 				{
-    				//process.stdout.write(d);
 					json_response = JSON.parse(d);
-					//console.log(json_response.name);
-					//return jsonObject;
-					
-					
   				}
 			);
 			
 			response_status = res.statusCode;
-			//console.log(response_status);
-			/*res.on("close", function()
-			{
-        		console.log('termino xd');
-				//console.log(jsonObject);
-				return jsonObject;
-    		});*/
 		}
 	)
 	.on
@@ -90,7 +189,12 @@ router.get('/summonerName/:summoner', function(req, res)
 		'error', 
 		(e) =>
 		{
-			flag = false;
+			res.json
+			(
+				{
+					message: 'An error has occurred, code:' + e
+				}
+			);
 		}
 	)
 	.on
@@ -98,16 +202,6 @@ router.get('/summonerName/:summoner', function(req, res)
 		"close",
 		function()
 		{
-    		//console.log('termino xd');
-			//console.log(json_response.summonerLevel);
-			//console.log(json_response);
-			//return jsonObject;
-			
-			//console.log(res.statusCode);
-			
-			//TO RESPONSE
-			
-			
 			if(response_status == 200)
 			{
 				res.json
@@ -166,14 +260,7 @@ router.get('/summonerName/:summoner', function(req, res)
 					}
 				);
 			}
-    	}
-	);	
-});
-
-router.get('/elo/:summoner', function(req, res)
-{
-	// TO DO
-	/* Something */	
+    	}*/
 	
 	//TO RESPONSE
 	res.json
@@ -289,11 +376,17 @@ router.get('/rotations/', function(req, res)
 	);
 });
 
+router.get('/public/', express.static( "public" ));
+
 // more routes for our API will happen here
 
+
 // REGISTER OUR ROUTES -------------------------------
-// all of our routes will be prefixed with /api
+// all of our routes will be prefixed with /api/{{ + version }}
+//app.use( express.static( "public" ) );
+app.use('/public', express.static("public"))
 app.use('/api/v1/', router);
+
 
 // START THE SERVER
 // =============================================================================
