@@ -16,7 +16,7 @@ var port = process.env.PORT || 3000;        // set our port
 
 // =======================================================//
 // GLOBAL VARIABLES FOR APIS.
-var apiKey = 'RGAPI-ad25d8dd-6100-49dd-8b39-cefc1abe96f3';
+var apiKey = 'RGAPI-6727f919-7ccc-4e5f-bbe5-7c03c5ccb10c';
 
 
 // ROUTES FOR OUR API
