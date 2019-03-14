@@ -14,6 +14,11 @@ app.use(cors());
 var port = process.env.PORT || 3000;        // set our port
 
 
+// =======================================================//
+// GLOBAL VARIABLES FOR APIS.
+var apiKey = 'RGAPI-ad25d8dd-6100-49dd-8b39-cefc1abe96f3';
+
+
 // ROUTES FOR OUR API
 // =============================================================================
 var router = express.Router();              // get an instance of the express Router
@@ -48,17 +53,13 @@ router.get('/summonerName/:region/:regionName/:summoner', function(req, res)
 	var summoner = req.params.summoner;
 	var region = req.params.region;
 	var regionName = req.params.regionName;
-	//console.log('Summoner: ' + summoner + ', region: ' + region);
+	console.log('Summoner: ' + summoner + ', region: ' + region);
 	
-	var json_response;
-	
-	//var apiKey = 'RGAPI-0af1caff-443d-4528-894a-7d99048d42dc';
-	var apiKey = 'RGAPI-5839053f-5ce9-4a66-bad3-5a643e0b633c';
-	
+	var json_response;	
 	var response_status;
 	
-	var url = 'https://' + region + '.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summoner +'?api_key=' + apiKey;
-	//console.log(url);
+	var url = 'https://' + region + '.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + (encodeURIComponent(summoner)) +'?api_key=' + apiKey;
+	console.log(url);
 	
 	https.get
 	(
@@ -95,6 +96,7 @@ router.get('/summonerName/:region/:regionName/:summoner', function(req, res)
 		"close",
 		function()
 		{
+			console.log(response_status);
 			if(response_status == 200)
 			{
 				res.json
@@ -147,6 +149,7 @@ router.get('/summonerName/:region/:regionName/:summoner', function(req, res)
 			
 			else
 			{
+				console.log('valio kk');
 				res.json
 				(
 					{
@@ -159,17 +162,22 @@ router.get('/summonerName/:region/:regionName/:summoner', function(req, res)
 	);	
 });
 
-router.get('/elo/:summoner', function(req, res)
+router.get('/elo/:region/:summonerID', function(req, res)
 {
 	// TO DO
 	/* Something */
-	var summoner = req.params.summoner;
+	var summonerID = req.params.summonerID;
+	var region = req.params.region;
 	//console.log(summoner);
 	
-	/*
+	var url = 'https://' + region + '.api.riotgames.com/lol/league/v4/positions/by-summoner/' + summonerID +'?api_key=' + apiKey;
+	
+	var json_response;	
+	var response_status;
+	
 	https.get
 	(
-		'https://la1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summoner +'?api_key=' + apiKey, 
+		url, 
 		(res) =>
 		{	
   			res.on
@@ -202,19 +210,182 @@ router.get('/elo/:summoner', function(req, res)
 		"close",
 		function()
 		{
+			console.log(response_status);
+			//console.log(json_response);
+			console.log(json_response.length);
+			
+			var eloEmpty = 
+			{
+				icon: 'http://localhost:3000/public/tier/unranked.png',
+				tier: 'Unranked',
+				wins: 'N/A',
+				losses: 'N/A',
+				leagueName: 'N/A',
+				queueType: 'N/A',
+				leaguePoints: 'N/A',
+			};
+			
 			if(response_status == 200)
 			{
-				res.json
-				(
+				if(json_response.length == 0)
+				{
+					res.json
+					(
+						[
+							eloEmpty,
+							eloEmpty,
+							eloEmpty
+						]
+					);
+				}
+				else if(json_response.length == 1)
+				{
+					
+					var tier = ((json_response[0].tier).toLowerCase() + ' ' + json_response[0].rank);
+					tier = tier.charAt(0).toUpperCase() + tier.slice(1);
+					
+					var icon_tier = 'http://localhost:3000/public/tier/' + json_response[0].tier.toLowerCase() + '_' + json_response[0].rank + '.png';
+					
+					if(json_response[0].queueType == 'RANKED_SOLO_5x5')
 					{
-						status: response_status,
-						summoner: json_response.name,
-						profileIcon: json_response.profileIconId,
-						summonerLevel: json_response.summonerLevel,
-						accountID: json_response.accountId,
-						summonerID: json_response.id
+						res.json
+						(
+							[
+								{
+									icon: icon_tier,
+									tier: tier,
+									wins: json_response[0].wins,
+									losses: json_response[0].losses,
+									leagueName: json_response[0].leagueName,
+									queueType: json_response[0].queueType,
+									leaguePoints: json_response[0].leaguePoints
+								},
+								eloEmpty,
+								eloEmpty
+							]
+						);
 					}
-				);
+					else if(json_response[0].queueType == 'RANKED_FLEX_SR')
+					{
+						res.json
+						(
+							[
+								eloEmpty,
+								{
+									icon: icon_tier,
+									tier: tier,
+									wins: json_response[0].wins,
+									losses: json_response[0].losses,
+									leagueName: json_response[0].leagueName,
+									queueType: json_response[0].queueType,
+									leaguePoints: json_response[0].leaguePoints
+								},
+								eloEmpty
+							]
+						);
+					}
+					else
+					{
+						res.json
+						(
+							[
+								eloEmpty,
+								eloEmpty,
+								{
+									icon: icon_tier,
+									tier: tier,
+									wins: json_response[0].wins,
+									losses: json_response[0].losses,
+									leagueName: json_response[0].leagueName,
+									queueType: json_response[0].queueType,
+									leaguePoints: json_response[0].leaguePoints
+								}
+							]
+						);
+					}
+				}
+				else if(json_response.length == 2)
+				{
+					console.log('Dos colas en ranked :o');
+					
+					var tier1 = ((json_response[0].tier).toLowerCase() + ' ' + json_response[0].rank);
+					tier1 = tier1.charAt(0).toUpperCase() + tier1.slice(1);
+					
+					var tier2 = ((json_response[1].tier).toLowerCase() + ' ' + json_response[1].rank);
+					tier2 = tier2.charAt(0).toUpperCase() + tier2.slice(1);
+					
+					var icon_tier1 = 'http://localhost:3000/public/tier/' + json_response[0].tier.toLowerCase() + '_' + json_response[0].rank + '.png';
+					var icon_tier2 = 'http://localhost:3000/public/tier/' + json_response[1].tier.toLowerCase() + '_' + json_response[1].rank + '.png';
+					
+					if(json_response[0].queueType == 'RANKED_SOLO_5x5')
+					{
+						console.log('Ranked soloq');
+						if(json_response[1].queueType == 'RANKED_FLEX_SR')
+						{
+							res.json
+							(
+								[
+									{
+										icon: icon_tier1,
+										tier: tier1,
+										wins: json_response[0].wins,
+										losses: json_response[0].losses,
+										leagueName: json_response[0].leagueName,
+										queueType: json_response[0].queueType,
+										leaguePoints: json_response[0].leaguePoints
+									},
+									{
+										icon: icon_tier2,
+										tier: tier2,
+										wins: json_response[1].wins,
+										losses: json_response[1].losses,
+										leagueName: json_response[1].leagueName,
+										queueType: json_response[1].queueType,
+										leaguePoints: json_response[1].leaguePoints
+									},
+									eloEmpty
+								]
+							);
+						}
+						else
+						{
+							res.json
+							(
+								[
+									{
+										icon: icon_tier1,
+										tier: tier1,
+										wins: json_response[0].wins,
+										losses: json_response[0].losses,
+										leagueName: json_response[0].leagueName,
+										queueType: json_response[0].queueType,
+										leaguePoints: json_response[0].leaguePoints
+									},
+									{
+										icon: icon_tier2,
+										tier: tier2,
+										wins: json_response[1].wins,
+										losses: json_response[1].losses,
+										leagueName: json_response[1].leagueName,
+										queueType: json_response[1].queueType,
+										leaguePoints: json_response[1].leaguePoints
+									},
+									eloEmpty
+								]
+							);
+						}
+					}
+					else if(json_response[0].queueType == 'RANKED_FLEX_SR')
+					{
+						console.log('Ranked Flex');
+					}
+				}
+				
+				else
+				{
+					console.log('ste men tiene las tres colas en ranked :o');
+					// TO DO.
+				}
 			}
 			
 			else if(response_status == 403)
@@ -260,10 +431,10 @@ router.get('/elo/:summoner', function(req, res)
 					}
 				);
 			}
-    	}*/
-	
+    	}
+	);
 	//TO RESPONSE
-	res.json
+	/*res.json
 	(
 		[
 			{
@@ -288,7 +459,7 @@ router.get('/elo/:summoner', function(req, res)
 				leaguePoints: 0
 			}
 		]
-	);
+	);*/
 });
 
 router.get('/matches/:summoner', function(req, res)
