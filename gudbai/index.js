@@ -16,7 +16,7 @@ var port = process.env.PORT || 3000;        // set our port
 
 // =======================================================//
 // GLOBAL VARIABLES FOR APIS.
-var apiKey = 'RGAPI-6727f919-7ccc-4e5f-bbe5-7c03c5ccb10c';
+var apiKey = 'RGAPI-7b296869-3b8f-4149-be7d-998f1b524a29';
 
 
 // ROUTES FOR OUR API
@@ -47,6 +47,8 @@ router.get('/message', function(req, res)
 
 // ================================================================//
 // WE START HERE! :D
+
+//Web service to get a Summoner basic data.
 router.get('/summonerName/:region/:regionName/:summoner', function(req, res)
 {
 	
@@ -162,6 +164,7 @@ router.get('/summonerName/:region/:regionName/:summoner', function(req, res)
 	);	
 });
 
+//Web service to get a Summoner basic data.
 router.get('/elo/:region/:summonerID', function(req, res)
 {
 	// TO DO
@@ -433,42 +436,78 @@ router.get('/elo/:region/:summonerID', function(req, res)
 			}
     	}
 	);
-	//TO RESPONSE
-	/*res.json
-	(
-		[
-			{
-				tier: 'Silver II',
-				wins: 25,
-				losses: 32,
-				queueType: 'Solo Queue',
-				leaguePoints: 38
-			},
-			{
-				tier: 'Gold IV',
-				wins: 18,
-				losses: 12,
-				queueType: 'Flex 5 vs 5',
-				leaguePoints: 68
-			},
-			{
-				tier: 'Unranked',
-				wins: 0,
-				losses: 0,
-				queueType: 'Flex 3 vs 3',
-				leaguePoints: 0
-			}
-		]
-	);*/
 });
 
-router.get('/matches/:summoner', function(req, res)
+router.get('/matches/:region/:summoner', function(req, res)
 {
 	// TO DO
 	/* Something */
+	var region = req.params.region;
+	var summoner = req.params.summoner;
+	
+	//console.log('Summoner: ' + summoner + ', region: ' + region);
+	
+	var url = 'https://' + region + '.api.riotgames.com/lol/match/v4/matchlists/by-account/' + summoner +'?api_key=' + apiKey;
+	
+	var json_response;	
+	var response_status;
+	
+	https.get
+	(
+		url, 
+		(res) =>
+		{	
+  			res.on
+			(
+				'data',
+				(d) => 
+				{
+					/*var last10 = d.filter(function(el, index)
+					{
+  						return index >= d.length - 10;
+					});
+					
+					console.log(last10);
+					
+					//process.stdout.write(d);*/
+					
+					json_response = JSON.parse(d);
+  				}
+			);
+			//json_response = res['data'];
+			//response_status = res.statusCode;
+		}
+	)
+	.on
+	(
+		'error', 
+		(e) =>
+		{
+			res.json
+			(
+				{
+					message: 'An error has occurred, code:' + e
+				}
+			);
+		}
+	)
+	.on
+	(
+		"close",
+		function()
+		{
+			res.json
+			(
+				json_response
+			);
+			
+			//console.log(response_status);
+			console.log(json_response);
+		}
+	);
 	
 	//TO RESPONSE
-	res.json
+	/*res.json
 	(
 		{
 			icon: 'someUrl.jpg',
@@ -479,7 +518,7 @@ router.get('/matches/:summoner', function(req, res)
 			kda1: '21/1/3',
 			kda2: '27.00:1 KDA'
 		}
-	);
+	);*/
 });
 
 router.get('/matches/:queue/:summoner', function(req, res)
