@@ -471,7 +471,9 @@ router.get('/matches/:region/:summoner', function(req, res)
 					
 					//process.stdout.write(d);*/
 					
-					json_response = JSON.parse(d);
+					//json_response = JSON.parse(d);
+					console.log(d);
+					//json_response = bodyParser.d;
   				}
 			);
 			//json_response = res['data'];
