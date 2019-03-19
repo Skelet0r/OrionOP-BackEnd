@@ -2,7 +2,7 @@
 var express    = require('express');        // call express
 var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
-var cors = require('cors')
+var cors = require('cors');
 const https = require('https');
 
 // configure app to use bodyParser()
@@ -16,7 +16,7 @@ var port = process.env.PORT || 3000;        // set our port
 
 // =======================================================//
 // GLOBAL VARIABLES FOR APIS.
-var apiKey = 'RGAPI-7b296869-3b8f-4149-be7d-998f1b524a29';
+var apiKey = 'RGAPI-513dc0a5-063f-408c-8309-74046824f552';
 
 
 // ROUTES FOR OUR API
@@ -447,14 +447,14 @@ router.get('/matches/:region/:summoner', function(req, res)
 	
 	//console.log('Summoner: ' + summoner + ', region: ' + region);
 	
-	var url = 'https://' + region + '.api.riotgames.com/lol/match/v4/matchlists/by-account/' + summoner +'?api_key=' + apiKey;
+	var url1 = 'https://' + region + '.api.riotgames.com/lol/match/v4/matchlists/by-account/' + summoner +'?api_key=' + apiKey;
 	
 	var json_response;	
 	var response_status;
 	
 	https.get
 	(
-		url, 
+		url1, 
 		(res) =>
 		{	
   			res.on
@@ -471,13 +471,14 @@ router.get('/matches/:region/:summoner', function(req, res)
 					
 					//process.stdout.write(d);*/
 					
-					//json_response = JSON.parse(d);
-					console.log(d);
+					json_response = JSON.parse(d);
+					//json_response = bodyParser(d);
+					//console.log(json_response);
 					//json_response = bodyParser.d;
   				}
 			);
 			//json_response = res['data'];
-			//response_status = res.statusCode;
+			response_status = res.statusCode;
 		}
 	)
 	.on
@@ -498,13 +499,82 @@ router.get('/matches/:region/:summoner', function(req, res)
 		"close",
 		function()
 		{
-			res.json
+			/*res.json
 			(
 				json_response
-			);
+			);*/
+			//json_response[0]
+			//console.log(json_response.matches);
+			console.log(response_status);
 			
-			//console.log(response_status);
-			console.log(json_response);
+			if(response_status == 200)
+			{
+				
+				
+				var arrayMatches = [];
+			
+				for(var i = 0; i <= 10; i++)
+				{
+					//console.log(json_response.matches[i].gameId);
+					arrayMatches[i] = 
+					{
+						gameId: json_response.matches[i].gameId,
+						champId: json_response.matches[i].champion
+					};
+				}
+				
+				https.get
+				(
+					'https://' + region + '.api.riotgames.com/lol/match/v4/matches/' + arrayMatches[0] +'?api_key=' + apiKey, 
+					(result) =>
+					{	
+  						result.on
+						(
+							'data',
+							(data) => 
+							{
+					
+								process.stdout.write(data);
+  							}
+						);
+					}
+				)
+				.on
+				(
+					'error', 
+					(error) =>
+					{
+						result.json
+						(
+							{
+								message: 'An error has occurred, code:' + error
+							}
+						);
+					}
+				)
+				.on
+				(
+					"close",
+					function()
+					{
+			
+						//console.log(arrayMatches);
+					}
+				);
+				
+				res.json
+				(
+					arrayMatches
+				);
+			}
+			else
+			{
+				res.json
+				(
+					{ message: 'We have some errors, sorry.' }
+				);
+			}
+			
 		}
 	);
 	
