@@ -16,7 +16,7 @@ var port = process.env.PORT || 3000;        // set our port
 
 // =======================================================//
 // GLOBAL VARIABLES FOR APIS.
-var apiKey = 'RGAPI-513dc0a5-063f-408c-8309-74046824f552';
+var apiKey = 'RGAPI-99ff6441-f475-41ce-adf1-2c273e88dd53';
 
 
 // ROUTES FOR OUR API
@@ -60,7 +60,7 @@ router.get('/summonerName/:region/:regionName/:summoner', function(req, res)
 	var json_response;	
 	var response_status;
 	
-	var url = 'https://' + region + '.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + (encodeURIComponent(summoner)) +'?api_key=' + apiKey;
+	var url = 'https://' + region + '.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + (encodeURIComponent(summoner)) + '?api_key=' + apiKey;
 	console.log(url);
 	
 	https.get
@@ -512,8 +512,20 @@ router.get('/matches/:region/:summoner', function(req, res)
 				
 				
 				var arrayMatches = [];
-			
-				for(var i = 0; i <= 10; i++)
+				var sizeMatches = 0;
+				
+				console.log(json_response.matches.length);
+				
+				if(json_response.matches.length > 10)
+				{
+					sizeMatches = 10;
+				}
+				else
+				{
+					sizeMatches = json_response.matches.length;
+				}
+				
+				for(var i = 0; i < sizeMatches; i++)
 				{
 					//console.log(json_response.matches[i].gameId);
 					arrayMatches[i] = 
@@ -523,9 +535,11 @@ router.get('/matches/:region/:summoner', function(req, res)
 					};
 				}
 				
-				https.get
+				//console.log(arrayMatches[0].gameId);
+				
+				/*https.get
 				(
-					'https://' + region + '.api.riotgames.com/lol/match/v4/matches/' + arrayMatches[0] +'?api_key=' + apiKey, 
+					'https://' + region + '.api.riotgames.com/lol/match/v4/matches/' + arrayMatches[0].gameId +'?api_key=' + apiKey, 
 					(result) =>
 					{	
   						result.on
@@ -560,7 +574,7 @@ router.get('/matches/:region/:summoner', function(req, res)
 			
 						//console.log(arrayMatches);
 					}
-				);
+				);*/
 				
 				res.json
 				(
@@ -591,6 +605,116 @@ router.get('/matches/:region/:summoner', function(req, res)
 			kda2: '27.00:1 KDA'
 		}
 	);*/
+});
+
+
+router.get('/match/:region/:champ/:matchID', function(req, res)
+{
+	
+	var champ = req.params.champ;
+	var region = req.params.region;
+	var matchID = req.params.matchID;
+	console.log('Champ: ' + champ + ', region: ' + region + ', matchID: ' + matchID);
+	
+	var json_response = [];	
+	var response_status;
+	
+	var url = 'https://' + region + '.api.riotgames.com/lol/match/v4/matches/' + matchID + '?api_key=' + apiKey;
+	console.log(url);
+	
+	https.get
+	(
+		url, 
+		(res) =>
+		{	
+  			res.on
+			(
+				'data',
+				(d) => 
+				{
+					json_response = JSON.parse(d);
+  				}
+			);
+			
+			response_status = res.statusCode;
+		}
+	)
+	.on
+	(
+		'error', 
+		(e) =>
+		{
+			res.json
+			(
+				{
+					message: 'An error has occurred, code:' + e
+				}
+			);
+		}
+	)
+	.on
+	(
+		"close",
+		function()
+		{
+			console.log(response_status);
+			console.log(JSON.parse(json_response));
+			if(response_status == 200)
+			{
+				res.json
+				(
+					{
+						message: 'Funkando xd'
+					}
+				);
+			}
+			
+			else if(response_status == 403)
+			{
+				res.json
+				(
+					{
+						status: response_status,
+						message: 'The API key has expired!'
+					}
+				);
+			}
+			
+			else if(response_status == 404)
+			{
+				res.json
+				(
+					{
+						status: response_status,
+						message: 'We couldnt find a summoner.'
+					}
+				);
+			}
+			
+			else if(response_status == 500)
+			{
+				res.json
+				(
+					{
+						status: response_status,
+						message: 'Problems with Riot Services.'
+					}
+				);
+			}
+			
+			else
+			{
+				console.log('valio kk');
+				res.json
+				(
+					{
+						status: response_status,
+						message: 'An error has occurred, code:' + response_status
+					}
+				);
+			}
+    	}
+	);
 });
 
 router.get('/matches/:queue/:summoner', function(req, res)
